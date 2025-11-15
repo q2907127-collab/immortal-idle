@@ -1,0 +1,570 @@
+<!DOCTYPE html>
+<html lang="zh">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>逆天挂机：一剑飞升</title>
+  <style>
+    body {
+      font-family: 'Microsoft YaHei', sans-serif;
+      background: linear-gradient(to bottom, #0a0e2a, #1a1a4a);
+      color: #e6e6e6;
+      margin: 0;
+      padding: 20px;
+      background-attachment: fixed;
+    }
+    .container {
+      max-width: 1000px;
+      margin: auto;
+      display: flex;
+      gap: 20px;
+    }
+    .main-panel {
+      flex: 3;
+    }
+    .sidebar {
+      flex: 2;
+      background: rgba(10, 20, 50, 0.7);
+      padding: 15px;
+      border-radius: 12px;
+      backdrop-filter: blur(5px);
+      border: 1px solid #3a50a0;
+    }
+    h1 {
+      text-align: center;
+      color: #ff5c8d;
+      text-shadow: 0 0 10px #ff5c8d;
+      font-size: 2em;
+    }
+    .stats {
+      background: rgba(0, 0, 0, 0.4);
+      padding: 15px;
+      border-radius: 10px;
+      margin-bottom: 15px;
+      line-height: 1.8;
+      border-left: 5px solid #5ce6e6;
+    }
+    .log {
+      height: 300px;
+      overflow-y: auto;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 12px;
+      border-radius: 8px;
+      font-size: 14px;
+      border: 1px solid #2a4a8a;
+    }
+    .log div {
+      margin-bottom: 6px;
+    }
+    .inventory {
+      margin-top: 15px;
+    }
+    .equipment-item {
+      padding: 8px;
+      margin-top: 5px;
+      background: rgba(30, 30, 60, 0.6);
+      border-radius: 6px;
+      font-size: 13px;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .equipment-item:hover {
+      background: rgba(60, 60, 100, 0.8);
+      transform: translateX(5px);
+    }
+    .btn {
+      background: #ff5c8d;
+      color: white;
+      border: none;
+      padding: 8px 12px;
+      margin: 5px 2px;
+      border-radius: 6px;
+      cursor: pointer;
+      font-size: 12px;
+    }
+    .btn:hover { background: #ff8ca8; }
+    .btn-big {
+      background: #d4af37;
+      padding: 12px;
+      font-size: 16px;
+      width: 100%;
+    }
+    .grade-0 { color: #aaa; }
+    .grade-1 { color: white; }
+    .grade-2 { color: #32cd32; }
+    .grade-3 { color: #1e90ff; }
+    .grade-4 { color: #9932cc; }
+    .grade-5 { color: #ff8c00; }
+    .grade-6 { color: #d4af37; }
+
+    /* 成就 */
+    .achievement {
+      padding: 6px;
+      margin: 4px 0;
+      background: rgba(100, 50, 150, 0.3);
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    .achieved {
+      background: rgba(50, 200, 100, 0.3);
+      color: #8fff8f;
+    }
+  </style>
+</head>
+<body>
+
+  <h1>🌌 逆天挂机：一剑飞升</h1>
+
+  <div class="container">
+    <div class="main-panel">
+      <div class="stats" id="playerStats">加载中...</div>
+      <div class="log" id="combatLog"></div>
+    </div>
+
+    <div class="sidebar">
+      <h3>🎒 背包 (<span id="invCount">0</span>/50)</h3>
+      <div>
+        <label><input type="checkbox" id="autoPickup" checked> 自动拾取</label>
+        <select id="minGradeForPickup">
+          <option value="0">不屏蔽</option>
+          <option value="1">普通及以上</option>
+          <option value="2">精良及以上</option>
+          <option value="3">稀有及以上</option>
+          <option value="4">史诗及以上</option>
+          <option value="5">神话及以上</option>
+        </select>
+      </div>
+      <button onclick="discardAll()" class="btn">🗑️ 丢弃全部</button>
+      <button onclick="sellAll()" class="btn">💰 出售垃圾</button>
+
+      <h3>🏯 当前副本</h3>
+      <select id="dungeonSelect" onchange="changeDungeon()"></select>
+      <div id="dungeonInfo"></div>
+
+      <h3>⚔️ 装备栏</h3>
+      <div id="equipslot"></div>
+
+      <h3>🏆 成就</h3>
+      <div id="achievements"></div>
+
+      <h3>⚡ 渡劫台</h3>
+      <button id="btnTrib" class="btn btn-big" onclick="attemptTribulation()" style="display:none;">
+        🔥 渡劫突破！天雷滚滚而来！
+      </button>
+    </div>
+  </div>
+
+  <script>
+    // ==================== 数据定义 ====================
+    const REALMS = ["炼气期", "筑基期", "金丹期", "元婴期", "化神期", "合体期", "大乘期", "渡劫期"];
+    const DUNGEONS = [
+      { name: "凡人洞穴", monster: "野猪妖|毒蛇怪|小鬼", dropBase: 1, bossChance: 0.05 },
+      { name: "幽冥古墓", monster: "骷髅兵|幽魂|石像鬼", dropBase: 3, bossChance: 0.1 },
+      { name: "九幽魔域", monster: "炎魔|影刺客|血傀儡", dropBase: 6, bossChance: 0.15 },
+      { name: "混沌禁区", monster: "虚空兽|堕神残念|混沌魔", dropBase: 10, bossChance: 0.2 }
+    ];
+    const GRADES = ["破损", "普通", "精良", "稀有", "史诗", "神话", "传说"];
+    const GRADE_MULTIPLIERS = [0.5, 1.0, 1.8, 2.8, 4.0, 6.0, 10.0];
+    const GRADE_EXTRA_ATTR_RANGE = [[0,1], [1,1], [2,2], [2,3], [3,4], [4,5], [5,6]];
+
+    const EXTRA_ATTRS = [
+      { n: "生命值", min: 10, max: 50 },
+      { n: "暴击率(%)", min: 1.0, max: 5.0, f: true },
+      { n: "攻击速度", min: 1, max: 5 },
+      { n: "闪避率(%)", min: 1.0, max: 5.0, f: true },
+      { n: "吸血率(%)", min: 0.5, max: 3.0, f: true },
+      { n: "破甲率(%)", min: 1.0, max: 4.0, f: true },
+      { n: "真伤加成", min: 5, max: 15 }
+    ];
+
+    const EQUIP_SLOTS = ["武器", "护甲", "头冠", "护腿", "饰品"];
+
+    // 成就列表
+    const ACHIEVEMENTS = [
+      { id: "kill_10", cond: (p) => p.killCount >= 10, name: "初入江湖", desc: "击杀10个怪物" },
+      { id: "kill_100", cond: (p) => p.killCount >= 100, name: "杀戮成性", desc: "击杀100个怪物" },
+      { id: "mythical", cond: (p) => p.stats.hasMythical, name: "神话降临", desc: "获得一件神话装备" },
+      { id: "legend", cond: (p) => p.stats.hasLegend, name: "万古唯一", desc: "获得传说法宝" },
+      { id: "realm_4", cond: (p) => p.realm >= 4, name: "化神尊者", desc: "突破至化神期" },
+      { id: "gold_1000", cond: (p) => p.gold >= 1000, name: "富可敌国", desc: "拥有1000灵石" }
+    ];
+
+    // 玩家数据
+    const player = {
+      level: 1,
+      realm: 0,
+      attack: 10,
+      defense: 5,
+      health: 100,
+      killCount: 0,
+      dungeon: 0,
+      inventory: [],
+      equipment: {},
+      skills: [],
+      gold: 0,
+      lastSave: Date.now(),
+      achievements: {}, // 已解锁成就
+      stats: { hasMythical: false, hasLegend: false }, // 统计
+      inTribulation: false
+    };
+
+    for (let slot of EQUIP_SLOTS) player.equipment[slot] = null;
+    for (let ach of ACHIEVEMENTS) player.achievements[ach.id] = false;
+
+    // ==================== 工具函数 ====================
+    function randInt(min, max) {
+      return Math.floor(Math.random() * (max - min + 1)) + min;
+    }
+    function randFloat(min, max) {
+      return parseFloat((Math.random() * (max - min) + min).toFixed(1));
+    }
+    function roll(prob) { return Math.random() < prob; }
+    function log(text, cls = "") {
+      const logDiv = document.getElementById("combatLog");
+      const entry = document.createElement("div");
+      if (cls) entry.className = cls;
+      entry.textContent = `[${formatTime()}] ${text}`;
+      logDiv.appendChild(entry);
+      logDiv.scrollTop = logDiv.scrollHeight;
+    }
+    function formatTime() {
+      const d = new Date();
+      return `${d.getHours().toString().padStart(2,'0')}:${d.getMinutes().toString().padStart(2,'0')}`;
+    }
+
+    // ==================== 生成装备 ====================
+    function createEquipment(dungeonLevel) {
+      let gradeIndex = dungeonLevel + randInt(-1, 2);
+      gradeIndex = Math.max(0, Math.min(6, gradeIndex));
+      if (window._isBoss) gradeIndex = Math.min(6, gradeIndex + 1);
+
+      const multiplier = GRADE_MULTIPLIERS[gradeIndex] * (1 + dungeonLevel * 0.3);
+      const type = EQUIP_SLOTS[randInt(0, 4)];
+      const prefix = ["无名", "青锋", "赤焰", "玄冰", "雷霆", "星辰", "混沌"][randInt(0, 6)];
+
+      const equip = {
+        id: Date.now() + randInt(1, 1000),
+        grade: GRADES[gradeIndex],
+        gradeIndex: gradeIndex,
+        type: type,
+        name: `${prefix}·${type}`,
+        baseAttributes: {},
+        extraAttributes: {}
+      };
+
+      const baseAttack = Math.round(5 * multiplier * (0.8 + Math.random() * 0.4));
+      const baseDefense = Math.round(3 * multiplier * (0.8 + Math.random() * 0.4));
+      if (type === "武器") equip.baseAttributes["攻击力"] = baseAttack;
+      else equip.baseAttributes["防御力"] = baseDefense;
+
+      const [minE, maxE] = GRADE_EXTRA_ATTR_RANGE[gradeIndex];
+      const numExtra = randInt(minE, maxE);
+      const attrsPool = [...EXTRA_ATTRS];
+      for (let i = 0; i < numExtra && attrsPool.length > 0; i++) {
+        const idx = randInt(0, attrsPool.length - 1);
+        const attr = attrsPool.splice(idx, 1)[0];
+        const value = attr.f ? randFloat(attr.min, attr.max) : randInt(attr.min, attr.max);
+        equip.extraAttributes[attr.n] = value;
+      }
+
+      if (gradeIndex === 6) {
+        const effects = ["对BOSS伤害+15%", "击杀回血5%", "掉落率+20%", "经验+30%"];
+        equip.effect = effects[randInt(0, effects.length - 1)];
+      }
+
+      return equip;
+    }
+
+    // ==================== 战斗 ====================
+    function fight() {
+      if (player.inTribulation) return;
+      const dungeon = DUNGEONS[player.dungeon];
+      const names = dungeon.monster.split("|");
+      let name = names[randInt(0, names.length - 1)];
+      const isBoss = roll(dungeon.bossChance);
+      const isElite = roll(0.15);
+
+      if (isBoss) name = `【天劫${name}·BOSS】`;
+      else if (isElite) name = `【暗影${name}·精英】`;
+
+      log(`🌀 遭遇 ${name}！`);
+
+      setTimeout(() => {
+        log(`✅ 镇压 ${name}！`, "success");
+        player.killCount++;
+
+        checkAchievements();
+
+        window._isBoss = isBoss || isElite;
+        if (roll(0.7)) {
+          const equipment = createEquipment(player.dungeon);
+          if (equipment.gradeIndex >= 5) player.stats.hasMythical = true;
+          if (equipment.gradeIndex >= 6) player.stats.hasLegend = true;
+          autoPickOrDrop(equipment);
+        } else {
+          const gold = randInt(1, 5) * (player.dungeon + 1);
+          player.gold += gold;
+          log(`💰 缴获灵石 ×${gold}`);
+        }
+
+        checkRealmAdvance();
+        updateUI();
+      }, 600);
+    }
+
+    // ==================== 境界突破判定 ====================
+    function checkRealmAdvance() {
+      const thresholds = [10, 30, 60, 100, 150, 210, 280]; // 每层所需击杀
+      if (player.realm < thresholds.length && player.killCount >= thresholds[player.realm]) {
+        player.inTribulation = true;
+        log("⚡ 天道感应！你已达到瓶颈，可尝试渡劫突破！", "upgrade");
+        document.getElementById("btnTrib").style.display = "block";
+      }
+    }
+
+    function attemptTribulation() {
+      const successRate = 0.7 + player.realm * 0.05;
+      log(`🔥 渡劫开始！成功率约 ${(successRate*100).toFixed(0)}%...`);
+      setTimeout(() => {
+        if (roll(successRate)) {
+          player.realm++;
+          log(`💥 成功渡劫！进入【${REALMS[player.realm]}】！`, "upgrade");
+          document.getElementById("btnTrib").style.display = "none";
+          player.inTribulation = false;
+          applyEquipStats();
+          unlockSkill();
+        } else {
+          const loss = Math.floor(player.killCount * 0.1);
+          player.killCount = Math.max(1, player.killCount - loss);
+          log(`❌ 渡劫失败！修为受损，杀戮数-${loss}`, "fail");
+        }
+        updateUI();
+      }, 1500);
+    }
+
+    // ==================== 背包 & 拾取 ====================
+    function autoPickOrDrop(equip) {
+      const minGrade = parseInt(document.getElementById("minGradeForPickup").value);
+      const autoPick = document.getElementById("autoPickup").checked;
+
+      if (autoPick && equip.gradeIndex < minGrade) {
+        log(`🗑️ 自动丢弃【${equip.grade}】${equip.name}`);
+        return;
+      }
+
+      if (player.inventory.length >= 50) {
+        log("🎒 背包已满！");
+        return;
+      }
+
+      player.inventory.push(equip);
+      log(`🎁 获得法宝：【${equip.grade}】${equip.name}`, `grade-${equip.gradeIndex}`);
+    }
+
+    function discardAll() {
+      const count = player.inventory.length;
+      player.inventory = [];
+      log(`🗑️ 无情丢弃 ${count} 件法宝！大道无情！`);
+      updateUI();
+    }
+
+    function sellAll() {
+      const minSell = parseInt(prompt("出售低于哪个品质？0=破损,1=普通...", "1")) || 1;
+      const filtered = player.inventory.filter(eq => eq.gradeIndex < minSell);
+      const gold = filtered.reduce((sum, eq) => sum + (eq.gradeIndex + 1) * 10, 0);
+      player.gold += gold;
+      player.inventory = player.inventory.filter(eq => eq.gradeIndex >= minSell);
+      log(`💰 出售 ${filtered.length} 件法宝，获得灵石 ×${gold}`);
+      updateUI();
+    }
+
+    // ==================== 装备系统 ====================
+    function equipItem(id) {
+      const item = player.inventory.find(eq => eq.id === id);
+      if (!item) return;
+      const old = player.equipment[item.type];
+      if (old) player.inventory.push(old);
+      player.equipment[item.type] = item;
+      player.inventory = player.inventory.filter(eq => eq.id !== id);
+      applyEquipStats();
+      log(`⚔️ 装备法宝：${item.name}`);
+      updateUI();
+    }
+
+    function unequip(slot) {
+      const item = player.equipment[slot];
+      if (item) {
+        player.inventory.push(item);
+        player.equipment[slot] = null;
+        applyEquipStats();
+        log(`🧼 卸下法宝：${item.name}`);
+        updateUI();
+      }
+    }
+
+    function applyEquipStats() {
+      let atkBonus = 0, defBonus = 0;
+      for (const slot in player.equipment) {
+        const eq = player.equipment[slot];
+        if (!eq) continue;
+        if (eq.baseAttributes["攻击力"]) atkBonus += eq.baseAttributes["攻击力"];
+        if (eq.baseAttributes["防御力"]) defBonus += eq.baseAttributes["防御力"];
+      }
+      player.attack = 10 + atkBonus + player.realm * 5;
+      player.defense = 5 + defBonus + player.realm * 2;
+    }
+
+    // ==================== 成就系统 ====================
+    function checkAchievements() {
+      let newAch = 0;
+      ACHIEVEMENTS.forEach(ach => {
+        if (!player.achievements[ach.id] && ach.cond(player)) {
+          player.achievements[ach.id] = true;
+          log(`🏆 解锁成就：【${ach.name}】—— ${ach.desc}`, "success");
+          newAch++;
+        }
+      });
+      if (newAch > 0) updateAchievements();
+    }
+
+    function updateAchievements() {
+      const div = document.getElementById("achievements");
+      div.innerHTML = "";
+      ACHIEVEMENTS.forEach(ach => {
+        const item = document.createElement("div");
+        item.className = `achievement ${player.achievements[ach.id] ? 'achieved' : ''}`;
+        item.textContent = `${ach.name}：${ach.desc}`;
+        div.appendChild(item);
+      });
+    }
+
+    // ==================== 存档 ====================
+    function saveGame() {
+      try {
+        localStorage.setItem("immortal_idle_save", JSON.stringify(player));
+        player.lastSave = Date.now();
+      } catch (e) {
+        console.error("存档失败", e);
+      }
+    }
+
+    function loadGame() {
+      const save = localStorage.getItem("immortal_idle_save");
+      if (save) {
+        try {
+          const data = JSON.parse(save);
+          Object.assign(player, data);
+          log("📜 检测到往生记忆，已加载...");
+        } catch (e) {
+          console.error(e);
+        }
+      } else {
+        log("✨ 新生道友，踏上逆天之路！");
+      }
+    }
+
+    // ==================== UI 更新 ====================
+    function updateUI() {
+      updatePlayerStats();
+      updateInventory();
+      updateDungeonSelect();
+      updateDungeonInfo();
+      updateEquipSlot();
+      updateAchievements();
+      document.getElementById("btnTrib").style.display = player.inTribulation ? "block" : "none";
+    }
+
+    function updatePlayerStats() {
+      document.getElementById("playerStats").innerHTML = `
+        <strong>道号</strong>: 无名道友<br/>
+        <strong>境界</strong>: 【${REALMS[player.realm]}】${player.inTribulation ? ' ⚠️待渡劫' : ''}<br/>
+        <strong>攻击力</strong>: ${player.attack} | <strong>防御力</strong>: ${player.defense}<br/>
+        <strong>灵石</strong>: ${player.gold} | <strong>杀戮数</strong>: ${player.killCount}
+      `;
+    }
+
+    function updateInventory() {
+      const inv = document.getElementById("inventory");
+      const countSpan = document.getElementById("invCount");
+      countSpan.textContent = player.inventory.length;
+
+      inv.innerHTML = "";
+      if (player.inventory.length === 0) {
+        inv.innerHTML = "<p style='opacity:0.6'>身外无物，方得自在</p>";
+        return;
+      }
+
+      player.inventory.slice(-8).reverse().forEach(eq => {
+        const div = document.createElement("div");
+        div.className = `equipment-item grade-${eq.gradeIndex}`;
+        div.innerHTML = `
+          ${eq.name} 
+          <span style="float:right;">
+            <button onclick="equipItem(${eq.id})">装备</button>
+          </span>
+        `;
+        div.onclick = () => equipItem(eq.id);
+        inv.appendChild(div);
+      });
+    }
+
+    function updateDungeonSelect() {
+      const sel = document.getElementById("dungeonSelect");
+      sel.innerHTML = "";
+      DUNGEONS.forEach((d, i) => {
+        const opt = document.createElement("option");
+        opt.value = i;
+        opt.text = d.name;
+        if (i === player.dungeon) opt.selected = true;
+        sel.appendChild(opt);
+      });
+    }
+
+    function changeDungeon() {
+      player.dungeon = parseInt(document.getElementById("dungeonSelect").value);
+      log(`🚪 切换副本：${DUNGEONS[player.dungeon].name}`);
+      updateDungeonInfo();
+    }
+
+    function updateDungeonInfo() {
+      const d = DUNGEONS[player.dungeon];
+      document.getElementById("dungeonInfo").innerHTML = `
+        难度：${d.dropBase}倍掉落<br/>
+        BOSS概率：${(d.bossChance*100).toFixed(1)}%
+      `;
+    }
+
+    function updateEquipSlot() {
+      const div = document.getElementById("equipslot");
+      div.innerHTML = "";
+      for (const slot in player.equipment) {
+        const eq = player.equipment[slot];
+        const item = document.createElement("div");
+        item.style.margin = "5px 0";
+        if (eq) {
+          item.innerHTML = `${slot}：${eq.name} <button onclick="unequip('${slot}')">卸下</button>`;
+          item.className = `grade-${eq.gradeIndex}`;
+        } else {
+          item.innerHTML = `${slot}：空`;
+          item.style.opacity = 0.5;
+        }
+        div.appendChild(item);
+      }
+    }
+
+    function unlockSkill() {
+      if (player.realm === 1) log("🧠 解锁技能：【真气护体】！");
+      if (player.realm === 4) log("💥 解锁神通：【万剑归宗】！");
+    }
+
+    // ==================== 初始化 ====================
+    window.onload = () => {
+      loadGame();
+      updateUI();
+      fight();
+      setInterval(fight, 3000);
+      setInterval(saveGame, 60000);
+    };
+  </script>
+</body>
+</html>
