@@ -23,7 +23,7 @@
 
     body {
       font-family: 'LXGW', 'Ma Shan Zheng', 'Microsoft YaHei', sans-serif;
-      background: url('https://cdn.jsdelivr.net/gh/mengzhuo/assets@main/xianxia-bg-beauty.jpg') no-repeat center center fixed;
+      background: url('https://cdn.jsdelivr.net/gh/mengzhuo/assets@main/xianxia-bg-ai-v2.jpg') no-repeat center center fixed;
       background-size: cover;
       color: #e6e6e6;
       min-height: 100vh;
@@ -67,6 +67,11 @@
       margin-bottom: 20px;
       line-height: 2;
       border-left: 5px solid #5ce6e6;
+    }
+
+    .stat-row {
+      display: flex;
+      justify-content: space-between;
     }
 
     .log {
@@ -124,14 +129,19 @@
 
     /* 列表项 */
     .item-list {
+      height: 120px;
+      overflow-y: auto;
       margin-top: 10px;
+      border: 1px solid rgba(100, 150, 255, 0.2);
+      border-radius: 6px;
+      padding: 5px;
     }
 
     .item {
-      padding: 10px;
-      margin-top: 5px;
+      padding: 8px;
+      margin-top: 4px;
       background: rgba(30, 40, 80, 0.5);
-      border-radius: 8px;
+      border-radius: 6px;
       font-size: 13px;
       cursor: pointer;
       transition: all 0.3s;
@@ -223,6 +233,23 @@
       background: #1e90ff;
       color: white;
     }
+
+    /* 蓄能条 */
+    .energy-bar {
+      width: 100%;
+      height: 12px;
+      background: #333;
+      border-radius: 6px;
+      margin: 8px 0;
+      overflow: hidden;
+    }
+
+    .energy-fill {
+      height: 100%;
+      width: 0%;
+      background: linear-gradient(90deg, #ff5c8d, #ff8c00);
+      transition: width 0.3s;
+    }
   </style>
 </head>
 <body>
@@ -286,8 +313,10 @@
         <select id="dungeonSelect"></select>
         <div id="dungeonInfo"></div>
 
-        <!-- 渡劫 -->
+        <!-- 渡劫台 -->
         <h3>⚡ 渡劫台</h3>
+        <div>当前进度：<span id="tribProgress">0</span>/100</div>
+        <div class="energy-bar"><div class="energy-fill" id="energyFill"></div></div>
         <button id="btnTrib" class="btn-big orange" style="display:none;" onclick="attemptTribulation()">
           ☄️ 渡劫突破！天雷滚滚而来！
         </button>
@@ -370,7 +399,8 @@
       lastSave: Date.now(),
       achievements: {},
       stats: { hasMythical: false, hasLegend: false },
-      inTribulation: false
+      tribEnergy: 0, // 渡劫能量
+      maxTribEnergy: 100
     };
 
     for (let slot of EQUIP_SLOTS) player.equipment[slot] = null;
@@ -381,7 +411,7 @@
     let selectedItem = null;
     let currentTab = 'inventory';
 
-    // ==================== 工具函数 ====================
+    // 工具函数
     function randInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
@@ -409,7 +439,7 @@
       document.getElementById("mainUI").style.display = "block";
 
       loadGame();
-      bindEvents();  // 绑定所有事件
+      bindEvents();
       updateUI();
       fight();
       setInterval(fight, 3000);
@@ -420,38 +450,24 @@
 
     // ==================== 事件绑定 ====================
     function bindEvents() {
-      // Tab 切换
       document.querySelectorAll('.tab').forEach(tab => {
         tab.onclick = function () {
           document.querySelectorAll('.tab').forEach(t => t.classList.remove('active'));
           this.classList.add('active');
-          const tabName = this.getAttribute('data-tab');
           document.querySelectorAll('#tab-inventory, #tab-equips, #tab-achievements').forEach(el => el.style.display = 'none');
-          document.getElementById(`tab-${tabName}`).style.display = 'block';
-          currentTab = tabName;
+          document.getElementById(`tab-${this.getAttribute('data-tab')}`).style.display = 'block';
         };
       });
 
-      // 副本切换
       const sel = document.getElementById("dungeonSelect");
       sel.onchange = function () {
         player.dungeon = parseInt(this.value);
         log(`🚪 切换副本：${DUNGEONS[player.dungeon].name}`);
       };
-
-      // 自动拾取
-      document.getElementById("autoPickup").onchange = function () {
-        localStorage.setItem("autoPickup", this.checked);
-      };
-
-      document.getElementById("minGradeForPickup").onchange = function () {
-        localStorage.setItem("minGradeForPickup", this.value);
-      };
     }
 
     // ==================== 战斗系统 ====================
     function fight() {
-      if (player.inTribulation) return;
       const d = DUNGEONS[player.dungeon];
       const names = d.monster.split("|");
       let name = names[randInt(0, names.length - 1)];
@@ -461,12 +477,32 @@
       if (isBoss) name = `【天劫${name}·BOSS】`;
       else if (isElite) name = `【暗影${name}·精英】`;
 
-      log(`🌀 遭遇 ${name}`);
+      const damageToMonster = Math.max(1, player.attack - 2);
+      const damageToPlayer = Math.max(1, randInt(3, 8) - player.defense);
+
+      log(`⚔️ 你对 ${name} 造成 ${damageToMonster} 点伤害！`, "success");
+
+      if (isElite || isBoss) {
+        log(`🔥 ${name} 气息恐怖，小心应对！`, "grade-4");
+      }
+
+      if (roll(0.3)) {
+        log(`🌀 你施展「基础剑术」，暴击！`, "grade-5");
+      }
+
       setTimeout(() => {
-        log(`✅ 镇压 ${name}`, "success");
+        log(`✅ 成功镇压 ${name}！`, "success");
         player.killCount++;
 
-        window._isBoss = isBoss || isElite;
+        // 渡劫能量 +1
+        player.tribEnergy += 1;
+        if (player.tribEnergy >= player.maxTribEnergy && !player.inTribulation) {
+          player.inTribulation = true;
+          log("⚡ 能量已满！可尝试渡劫突破！", "upgrade");
+          document.getElementById("btnTrib").style.display = "block";
+        }
+
+        // 掉落
         if (roll(0.7)) {
           const equipment = createEquipment(player.dungeon);
           if (equipment.gradeIndex >= 5) player.stats.hasMythical = true;
@@ -492,7 +528,6 @@
         }
 
         checkAchievements();
-        checkRealmAdvance();
         updateUI();
       }, 600);
     }
@@ -545,12 +580,14 @@
       // 角色状态
       document.getElementById("playerStats").innerHTML = `
         <strong>道号</strong>: 无名道友<br/>
-        <strong>境界</strong>: 【${REALMS[player.realm]}】${player.inTribulation ? ' ⚠️待渡劫' : ''}<br/>
-        <strong>攻击力</strong>: ${player.attack} | <strong>防御力</strong>: ${player.defense}<br/>
-        <strong>灵石</strong>: ${player.gold} | <strong>杀戮数</strong>: ${player.killCount}
+        <strong>境界</strong>: 【${REALMS[player.realm]}】<br/>
+        <div class="stat-row"><span>攻击力</span><span>${player.attack}</span></div>
+        <div class="stat-row"><span>防御力</span><span>${player.defense}</span></div>
+        <div class="stat-row"><span>灵石</span><span>${player.gold}</span></div>
+        <div class="stat-row"><span>杀戮数</span><span>${player.killCount}</span></div>
       `;
 
-      // 副本选择
+      // 副本
       const sel = document.getElementById("dungeonSelect");
       sel.innerHTML = "";
       DUNGEONS.forEach((d, i) => {
@@ -560,19 +597,21 @@
         if (i === player.dungeon) opt.selected = true;
         sel.appendChild(opt);
       });
-
       document.getElementById("dungeonInfo").innerHTML = `难度：${DUNGEONS[player.dungeon].dropBase}倍 | BOSS概率：${(DUNGEONS[player.dungeon].bossChance*100).toFixed(1)}%`;
 
-      // 背包
+      // 背包（高品质优先）
       const invList = document.getElementById("inventoryList");
       invList.innerHTML = "";
-      player.inventory.slice(-10).reverse().forEach(eq => {
-        const div = document.createElement("div");
-        div.className = `item grade-${eq.gradeIndex}`;
-        div.innerHTML = `${eq.name}`;
-        div.onclick = () => showItemDetail(eq);
-        invList.appendChild(div);
-      });
+      [...player.inventory]
+        .sort((a, b) => b.gradeIndex - a.gradeIndex)
+        .slice(0, 20)
+        .forEach(eq => {
+          const div = document.createElement("div");
+          div.className = `item grade-${eq.gradeIndex}`;
+          div.innerHTML = `${eq.name}`;
+          div.onclick = () => showItemDetail(eq);
+          invList.appendChild(div);
+        });
 
       // 装备栏
       const es = document.getElementById("equipslot");
@@ -582,11 +621,11 @@
         const item = document.createElement("div");
         item.className = "equip-slot";
         if (eq) {
-          item.innerHTML = `<span>${slot}</span>：${eq.name}`;
+          item.innerHTML = `<span class="grade-${eq.gradeIndex}">${slot}</span>：${eq.name}`;
           item.onclick = () => showItemDetail(eq);
           item.style.cursor = "pointer";
         } else {
-          item.innerHTML = `<span>${slot}</span>：空`;
+          item.innerHTML = `<span>空</span>`;
           item.style.opacity = 0.5;
         }
         es.appendChild(item);
@@ -602,7 +641,11 @@
         achDiv.appendChild(item);
       });
 
-      // 渡劫按钮
+      // 渡劫能量条
+      const progressText = document.getElementById("tribProgress");
+      const energyFill = document.getElementById("energyFill");
+      progressText.textContent = `${player.tribEnergy}/${player.maxTribEnergy}`;
+      energyFill.style.width = `${(player.tribEnergy / player.maxTribEnergy) * 100}%`;
       document.getElementById("btnTrib").style.display = player.inTribulation ? "block" : "none";
     }
 
@@ -661,7 +704,7 @@
       player.equipment[item.type] = item;
       player.inventory = player.inventory.filter(eq => eq.id !== item.id);
       applyEquipStats();
-      log(`⚔️ 装备法宝：${item.name}`);
+      log(`⚔️ 装备法宝：${item.name}`, `grade-${item.gradeIndex}`);
       closeModal();
       updateUI();
     }
@@ -691,7 +734,7 @@
       player.defense = 5 + defBonus + player.realm * 2;
     }
 
-    // ==================== 其他功能 ====================
+    // ==================== 功能函数 ====================
     function discardAll() {
       const count = player.inventory.length;
       player.inventory = [];
@@ -700,7 +743,9 @@
     }
 
     function sellAll() {
-      const minSell = parseInt(prompt("出售低于哪个品质？\n0=破损,1=普通...", "1")) || 1;
+      const minSell = parseInt(prompt("出售低于哪个品质？\n0=破损,1=普通...", "1"));
+      if (isNaN(minSell)) return;
+
       const filtered = player.inventory.filter(eq => eq.gradeIndex < minSell);
       const count = filtered.length;
       const gold = filtered.reduce((sum, eq) => sum + (eq.gradeIndex + 1) * 10, 0);
@@ -713,21 +758,10 @@
     function toggleMusic() {
       const btn = document.getElementById("musicBtn");
       if (bgMusic.paused) {
-        bgMusic.play().then(() => {
-          btn.textContent = "🔇 关闭音乐";
-        }).catch(e => alert("请先点击页面任意位置允许音频播放"));
+        bgMusic.play().then(() => btn.textContent = "🔇 关闭音乐").catch(() => alert("请先点击页面"));
       } else {
         bgMusic.pause();
         btn.textContent = "🔊 开启音乐";
-      }
-    }
-
-    function checkRealmAdvance() {
-      const thresholds = [10, 30, 60, 100, 150, 210, 280];
-      if (player.realm < thresholds.length && player.killCount >= thresholds[player.realm]) {
-        player.inTribulation = true;
-        log("⚡ 天道感应！你已达到瓶颈，可尝试渡劫突破！", "upgrade");
-        document.getElementById("btnTrib").style.display = "block";
       }
     }
 
@@ -738,29 +772,26 @@
       setTimeout(() => {
         if (roll(successRate)) {
           player.realm++;
+          player.tribEnergy = 0;
+          player.inTribulation = false;
           log(`💥 成功渡劫！进入【${REALMS[player.realm]}】！`, "upgrade");
           document.getElementById("btnTrib").style.display = "none";
-          player.inTribulation = false;
           applyEquipStats();
         } else {
-          const loss = Math.floor(player.killCount * 0.1);
-          player.killCount = Math.max(1, player.killCount - loss);
-          log(`❌ 渡劫失败！修为受损，杀戮数-${loss}`, "fail");
+          player.tribEnergy = Math.max(0, player.tribEnergy - 20);
+          log(`❌ 渡劫失败！能量倒退！`, "fail");
         }
         updateUI();
       }, 1500);
     }
 
     function checkAchievements() {
-      let newOne = false;
       ACHIEVEMENTS.forEach(ach => {
         if (!player.achievements[ach.id] && ach.cond(player)) {
           player.achievements[ach.id] = true;
           log(`🏆 解锁成就：【${ach.name}】—— ${ach.desc}`, "success");
-          newOne = true;
         }
       });
-      if (newOne) updateUI();
     }
 
     function saveGame() {
@@ -773,10 +804,6 @@
       try {
         const save = localStorage.getItem("immortal_idle_save");
         if (save) Object.assign(player, JSON.parse(save));
-        const ap = localStorage.getItem("autoPickup");
-        if (ap !== null) document.getElementById("autoPickup").checked = ap === 'true';
-        const mg = localStorage.getItem("minGradeForPickup");
-        if (mg) document.getElementById("minGradeForPickup").value = mg;
       } catch (e) {}
     }
   </script>
