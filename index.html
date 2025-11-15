@@ -5,26 +5,31 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>逆天挂机：一剑飞升</title>
 
-  <!-- 背景音乐 -->
-  <audio id="bgMusic" loop>
-    <source src="https://cdn.jsdelivr.net/gh/mengzhuo/assets@main/xianxia-loop.mp3" type="audio/mpeg">
-  </audio>
+  <!-- 字体 -->
+  <link href="https://fonts.googleapis.com/css2?family=Ma+Shan+Zheng&display=swap" rel="stylesheet">
 
   <style>
     @font-face {
-      font-family: 'ZiYun';
+      font-family: 'LXGW';
       src: url('https://cdn.jsdelivr.net/gh/lxgw/LxgwWenkaiWebFont@latest/fonts/LXGWWenKai-Regular.woff2') format('woff2');
+      font-display: swap;
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
     body {
-      font-family: 'ZiYun', 'Microsoft YaHei', sans-serif;
-      background: url('https://cdn.jsdelivr.net/gh/mengzhuo/assets@main/xianxia-bg.jpg') no-repeat center center fixed;
+      font-family: 'LXGW', 'Ma Shan Zheng', 'Microsoft YaHei', sans-serif;
+      background: url('https://cdn.jsdelivr.net/gh/mengzhuo/assets@main/xianxia-bg-beauty.jpg') no-repeat center center fixed;
       background-size: cover;
       color: #e6e6e6;
-      overflow-x: hidden;
-      height: 100vh;
+      min-height: 100vh;
+      line-height: 1.6;
     }
+
     .container {
       max-width: 1000px;
       margin: auto;
@@ -32,110 +37,102 @@
       display: flex;
       gap: 20px;
     }
+
     .main-panel {
       flex: 3;
     }
+
     .sidebar {
       flex: 2;
-      background: rgba(10, 20, 50, 0.7);
-      padding: 15px;
-      border-radius: 12px;
-      backdrop-filter: blur(8px);
-      border: 1px solid #4a80d0;
-      box-shadow: 0 0 20px rgba(100, 150, 255, 0.2);
+      background: rgba(15, 25, 45, 0.7);
+      backdrop-filter: blur(10px);
+      padding: 20px;
+      border-radius: 16px;
+      border: 1px solid rgba(100, 150, 255, 0.3);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);
     }
 
     h1 {
       text-align: center;
-      color: #ff5c8d;
-      text-shadow: 0 0 20px #ff5c8d, 0 0 40px #ff5c8d;
-      font-size: 2.4em;
-      letter-spacing: 3px;
+      font-size: 2.2em;
+      color: #d4af37;
+      text-shadow: 0 0 10px rgba(212, 175, 55, 0.8);
       margin-bottom: 10px;
-      animation: glow 2s infinite alternate;
-    }
-
-    @keyframes glow {
-      from { text-shadow: 0 0 20px #ff5c8d; }
-      to { text-shadow: 0 0 40px #ff5c8d, 0 0 60px #ff5c8d; }
+      letter-spacing: 2px;
     }
 
     .stats {
-      background: rgba(0, 0, 0, 0.5);
+      background: rgba(0, 0, 0, 0.4);
       padding: 18px;
       border-radius: 12px;
-      margin-bottom: 15px;
+      margin-bottom: 20px;
       line-height: 2;
-      border-left: 6px solid #5ce6e6;
-      box-shadow: inset 0 0 10px rgba(0, 255, 255, 0.2);
+      border-left: 5px solid #5ce6e6;
     }
+
     .log {
       height: 300px;
       overflow-y: auto;
-      background: rgba(0, 0, 0, 0.4);
-      padding: 12px;
+      background: rgba(0, 0, 0, 0.3);
+      padding: 14px;
       border-radius: 10px;
       font-size: 14px;
-      border: 1px solid #3a70b0;
-      box-shadow: 0 0 10px rgba(0, 100, 255, 0.1);
+      border: 1px solid rgba(100, 150, 255, 0.2);
     }
+
     .log div {
       margin-bottom: 6px;
-      opacity: 0.9;
+      word-break: break-word;
     }
+
     .inventory {
       margin-top: 15px;
     }
+
     .equipment-item {
       padding: 10px;
       margin-top: 6px;
-      background: rgba(30, 40, 80, 0.6);
+      background: rgba(30, 40, 80, 0.5);
       border-radius: 8px;
       font-size: 13px;
       cursor: pointer;
       transition: all 0.3s ease;
-      border-left: 4px solid transparent;
     }
+
     .equipment-item:hover {
-      transform: translateX(8px);
-      border-color: #5ce6e6;
-      background: rgba(50, 80, 150, 0.6);
+      background: rgba(60, 90, 160, 0.6);
+      transform: translateX(5px);
     }
-    .btn {
-      background: #ff5c8d;
+
+    button {
+      background: #1e90ff;
       color: white;
       border: none;
-      padding: 10px 14px;
-      margin: 6px 2px;
-      border-radius: 8px;
+      padding: 8px 12px;
+      margin: 5px 2px;
+      border-radius: 6px;
       cursor: pointer;
       font-size: 13px;
       transition: all 0.2s;
     }
-    .btn:hover { background: #ff8ca8; transform: scale(1.05); }
-    .btn-big {
-      background: #d4af37;
-      padding: 14px;
-      font-size: 16px;
-      width: 100%;
-      font-weight: bold;
-      color: #000;
-      text-shadow: 0 0 3px white;
-    }
-    .btn-start {
-      background: linear-gradient(45deg, #d4af37, #ff8c00);
-      font-size: 20px;
-      padding: 20px;
-      border: 2px solid #fff;
-      box-shadow: 0 0 30px rgba(255, 140, 0, 0.6);
-      animation: pulse 1.5s infinite;
+
+    button:hover {
+      background: #3cb0ff;
+      transform: scale(1.03);
     }
 
-    @keyframes pulse {
-      0% { transform: scale(1); }
-      50% { transform: scale(1.05); }
-      100% { transform: scale(1); }
+    button.btn-big {
+      background: linear-gradient(to right, #d4af37, #ff8c00);
+      color: #000;
+      font-weight: bold;
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      text-shadow: 0 0 2px white;
     }
+
+    button.red { background: #e94560; }
+    button.green { background: #32cd32; }
 
     /* 品质颜色 */
     .grade-0 { color: #aaa; }
@@ -144,89 +141,94 @@
     .grade-3 { color: #1e90ff; }
     .grade-4 { color: #9932cc; }
     .grade-5 { color: #ff8c00; }
-    .grade-6 { color: #d4af37; text-shadow: 0 0 5px gold; }
+    .grade-6 { color: #d4af37; font-weight: bold; }
 
     /* 成就 */
     .achievement {
       padding: 8px;
-      margin: 5px 0;
-      background: rgba(100, 50, 150, 0.3);
+      margin: 6px 0;
+      background: rgba(70, 30, 100, 0.4);
       border-radius: 6px;
       font-size: 13px;
-      border-left: 3px solid #9932cc;
+      border-left: 4px solid #9932cc;
     }
+
     .achieved {
-      background: rgba(50, 200, 100, 0.4);
+      background: rgba(30, 150, 80, 0.5);
       color: #a0ffa0;
-      border-left-color: #32cd32;
-      animation: popIn 0.5s;
-    }
-    @keyframes popIn {
-      from { opacity: 0; transform: translateY(-10px); }
-      to { opacity: 1; transform: translateY(0); }
+      font-weight: bold;
     }
 
-    /* 雷劫特效 */
-    .trib-animation {
-      position: fixed;
-      top: 0; left: 0; width: 100%; height: 100%;
-      background: radial-gradient(circle, rgba(255,215,0,0.4), transparent 70%);
-      pointer-events: none;
-      z-index: 9999;
-      display: none;
-      animation: flash 0.4s infinite alternate;
-    }
-    .lightning {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: 
-        linear-gradient(transparent, rgba(255,255,255,0.8), transparent),
-        linear-gradient(45deg, transparent, rgba(255,215,0,0.6), transparent);
-      opacity: 0;
-      animation: strike 1s infinite;
-    }
-    @keyframes flash {
-      from { opacity: 0.6; }
-      to { opacity: 1; }
-    }
-    @keyframes strike {
-      0%, 100% { opacity: 0; }
-      40% { opacity: 1; }
-      60% { opacity: 0.8; }
-    }
-
-    /* 引导遮罩 */
+    /* 引导页 */
     .guide-overlay {
       position: fixed;
       top: 0; left: 0; width: 100%; height: 100%;
-      background: rgba(0, 0, 0, 0.9);
+      background: radial-gradient(circle, rgba(0,0,0,0.8), rgba(0,0,0,0.9)), 
+                  url('https://cdn.jsdelivr.net/gh/mengzhuo/assets@main/mountain-spiritual.jpg') center/cover no-repeat;
       z-index: 10000;
       display: flex;
       flex-direction: column;
       justify-content: center;
       align-items: center;
       text-align: center;
+      color: white;
       padding: 20px;
+      animation: fadeIn 1s;
     }
+
+    @keyframes fadeIn {
+      from { opacity: 0; }
+      to { opacity: 1; }
+    }
+
     .guide-overlay h2 {
-      color: #ff5c8d;
+      font-size: 2.5em;
+      color: #d4af37;
+      text-shadow: 0 0 10px black;
       margin: 20px 0;
-      font-size: 2em;
     }
+
     .guide-overlay p {
       max-width: 600px;
+      margin: 10px auto;
+      line-height: 1.8;
+      color: #eee;
+      text-shadow: 0 0 5px rgba(0,0,0,0.8);
+    }
+
+    /* 渡劫特效（只在需要时短暂出现） */
+    .trib-flash {
+      position: fixed;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: radial-gradient(circle, rgba(255,215,0,0.6), transparent 70%);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 9998;
+    }
+
+    .lightning-effect {
+      position: absolute;
+      top: 0; left: 0; width: 100%; height: 100%;
+      background: linear-gradient(transparent, rgba(255,255,255,0.9), transparent);
+      opacity: 0;
+      pointer-events: none;
+      z-index: 9999;
+    }
+
+    /* 音乐控制 */
+    .music-ctrl {
+      font-size: 12px;
+      text-align: center;
       margin: 10px 0;
-      line-height: 1.6;
       color: #ccc;
     }
   </style>
 </head>
 <body>
 
-  <!-- 雷劫特效 -->
-  <div class="trib-animation" id="tribLight"></div>
-  <div class="lightning" id="lightning"></div>
+  <!-- 渡劫特效 -->
+  <div class="trib-flash" id="tribFlash"></div>
+  <div class="lightning-effect" id="lightning"></div>
 
   <!-- 启动引导页 -->
   <div class="guide-overlay" id="guideOverlay">
@@ -234,12 +236,12 @@
     <p>你本是凡人，却在古洞中得一残卷——《混沌吞天诀》。</p>
     <p>从此踏上逆天修行之路，斩妖除魔，炼器炼丹，终将打破桎梏，飞升成仙！</p>
     <p>镇压万族，唯我独尊！</p>
-    <button class="btn btn-start" onclick="startGame()">🔥 点此开脉，踏入修真界</button>
+    <button class="btn btn-big" onclick="startGame()">✨ 点此开脉，踏入修真界</button>
   </div>
 
   <!-- 主界面 -->
   <div id="mainUI" style="display:none;">
-    <h1>🌌 逆天挂机：一剑飞升</h1>
+    <h1>「逆天挂机」一剑飞升</h1>
     <div class="container">
       <div class="main-panel">
         <div class="stats" id="playerStats">加载中...</div>
@@ -259,11 +261,11 @@
             <option value="5">神话及以上</option>
           </select>
         </div>
-        <button onclick="discardAll()" class="btn">🗑️ 无情丢弃</button>
-        <button onclick="sellAll()" class="btn">💰 出售垃圾</button>
+        <button onclick="discardAll()" class="red">🗑️ 丢弃全部</button>
+        <button onclick="sellAll()" class="green">💰 出售垃圾</button>
 
         <h3>🏯 当前副本</h3>
-        <select id="dungeonSelect"></select>
+        <select id="dungeonSelect" onchange="changeDungeon()"></select>
         <div id="dungeonInfo"></div>
 
         <h3>⚔️ 装备栏</h3>
@@ -273,12 +275,21 @@
         <div id="achievements"></div>
 
         <h3>⚡ 渡劫台</h3>
-        <button id="btnTrib" class="btn btn-big" onclick="attemptTribulation()" style="display:none;">
-          🔥 渡劫突破！天雷滚滚而来！
+        <button id="btnTrib" class="btn-big" onclick="attemptTribulation()" style="display:none;">
+          ☄️ 渡劫突破！天雷滚滚而来！
         </button>
+
+        <div class="music-ctrl">
+          <button onclick="toggleMusic()" id="musicBtn">🔊 开启背景音乐</button>
+        </div>
       </div>
     </div>
   </div>
+
+  <!-- 背景音乐（不自动播放） -->
+  <audio id="bgMusic" loop>
+    <source src="https://cdn.jsdelivr.net/gh/mengzhuo/assets@main/xianxia-loop-soothing.mp3" type="audio/mpeg">
+  </audio>
 
   <script>
     // ==================== 全局变量 ====================
@@ -337,38 +348,48 @@
 
     // DOM Elements
     const bgMusic = document.getElementById("bgMusic");
-    const tribLight = document.getElementById("tribLight");
+    const tribFlash = document.getElementById("tribFlash");
     const lightning = document.getElementById("lightning");
 
     // ==================== 工具函数 ====================
     function randInt(min, max) {
       return Math.floor(Math.random() * (max - min + 1)) + min;
     }
-    function roll(prob) { return Math.random() < prob; }
+
+    function roll(prob) {
+      return Math.random() < prob;
+    }
+
     function log(text, cls = "") {
-      const logDiv = document.getElementById("combatLog");
-      const entry = document.createElement("div");
-      if (cls) entry.className = cls;
-      entry.textContent = `[${new Date().toTimeString().slice(0,5)}] ${text}`;
-      logDiv.appendChild(entry);
-      logDiv.scrollTop = logDiv.scrollHeight;
+      try {
+        const logDiv = document.getElementById("combatLog");
+        const entry = document.createElement("div");
+        if (cls) entry.className = cls;
+        entry.textContent = `[${new Date().toTimeString().slice(0,5)}] ${text}`;
+        logDiv.appendChild(entry);
+        logDiv.scrollTop = logDiv.scrollHeight;
+      } catch (e) {
+        console.error("日志错误", e);
+      }
     }
 
     // ==================== 启动游戏 ====================
     function startGame() {
-      document.getElementById("guideOverlay").style.display = "none";
-      document.getElementById("mainUI").style.display = "block";
+      try {
+        document.getElementById("guideOverlay").style.display = "none";
+        document.getElementById("mainUI").style.display = "block";
 
-      // 播放背景音乐（可能需要用户交互）
-      bgMusic.play().catch(e => console.log("音乐需手动播放", e));
+        loadGame();
+        updateUI();
+        fight(); // 立即打一次
+        setInterval(fight, 3000); // 每3秒自动战斗
+        setInterval(saveGame, 60000); // 每分钟存档
 
-      loadGame();
-      updateUI();
-      fight();
-      setInterval(fight, 3000);
-      setInterval(saveGame, 60000);
-
-      log("✨ 新生道友，踏上逆天之路！");
+        log("✨ 新生道友，踏上逆天之路！");
+      } catch (e) {
+        console.error("启动失败", e);
+        alert("游戏启动出错：" + e.message);
+      }
     }
 
     // ==================== 战斗系统 ====================
@@ -383,9 +404,9 @@
       if (isBoss) name = `【天劫${name}·BOSS】`;
       else if (isElite) name = `【暗影${name}·精英】`;
 
-      log(`🌀 遭遇 ${name}！`);
+      log(`🌀 遭遇 ${name}`);
       setTimeout(() => {
-        log(`✅ 镇压 ${name}！`, "success");
+        log(`✅ 镇压 ${name}`, "success");
         player.killCount++;
 
         window._isBoss = isBoss || isElite;
@@ -413,7 +434,7 @@
       }, 600);
     }
 
-    // ==================== 装备生成 ====================
+    // ==================== 创建装备 ====================
     function createEquipment(dungeonLevel) {
       let gradeIndex = dungeonLevel + randInt(-1, 2);
       gradeIndex = Math.max(0, Math.min(6, gradeIndex));
@@ -470,10 +491,13 @@
       const successRate = 0.7 + player.realm * 0.05;
       log(`🔥 渡劫开始！成功率约 ${(successRate*100).toFixed(0)}%...`);
 
-      // 雷光特效
-      tribLight.style.display = "block";
-      lightning.style.opacity = 1;
-      setTimeout(() => { lightning.style.opacity = 0; }, 1000);
+      // 显示雷光（短时间）
+      tribFlash.style.opacity = 0.8;
+      lightning.style.opacity = 0.9;
+      setTimeout(() => {
+        tribFlash.style.opacity = 0;
+        lightning.style.opacity = 0;
+      }, 300);
 
       setTimeout(() => {
         if (roll(successRate)) {
@@ -487,12 +511,11 @@
           player.killCount = Math.max(1, player.killCount - loss);
           log(`❌ 渡劫失败！修为受损，杀戮数-${loss}`, "fail");
         }
-        tribLight.style.display = "none";
         updateUI();
       }, 1500);
     }
 
-    // ==================== 装备系统 ====================
+    // ==================== 其他系统（略）...
     function equipItem(id) {
       const item = player.inventory.find(eq => eq.id === id);
       if (!item) return;
@@ -528,17 +551,14 @@
       player.defense = 5 + defBonus + player.realm * 2;
     }
 
-    // ==================== 成就系统 ====================
     function checkAchievements() {
-      let newAch = 0;
       ACHIEVEMENTS.forEach(ach => {
         if (!player.achievements[ach.id] && ach.cond(player)) {
           player.achievements[ach.id] = true;
           log(`🏆 解锁成就：【${ach.name}】—— ${ach.desc}`, "success");
-          newAch++;
         }
       });
-      if (newAch > 0) updateAchievements();
+      updateAchievements();
     }
 
     function updateAchievements() {
@@ -552,11 +572,12 @@
       });
     }
 
-    // ==================== 存档 ====================
     function saveGame() {
       try {
         localStorage.setItem("immortal_idle_save", JSON.stringify(player));
-      } catch (e) {}
+      } catch (e) {
+        console.warn("存档失败", e);
+      }
     }
 
     function loadGame() {
@@ -565,82 +586,101 @@
         try {
           Object.assign(player, JSON.parse(save));
           log("📜 检测到往生记忆...");
-        } catch (e) {}
+        } catch (e) {
+          console.error("读档失败", e);
+        }
       }
     }
 
-    // ==================== UI 更新 ====================
     function updateUI() {
-      document.getElementById("playerStats").innerHTML = `
-        <strong>道号</strong>: 无名道友<br/>
-        <strong>境界</strong>: 【${REALMS[player.realm]}】${player.inTribulation ? ' ⚠️待渡劫' : ''}<br/>
-        <strong>攻击力</strong>: ${player.attack} | <strong>防御力</strong>: ${player.defense}<br/>
-        <strong>灵石</strong>: ${player.gold} | <strong>杀戮数</strong>: ${player.killCount}
-      `;
-      document.getElementById("invCount").textContent = player.inventory.length;
+      try {
+        document.getElementById("playerStats").innerHTML = `
+          <strong>道号</strong>: 无名道友<br/>
+          <strong>境界</strong>: 【${REALMS[player.realm]}】${player.inTribulation ? ' ⚠️待渡劫' : ''}<br/>
+          <strong>攻击力</strong>: ${player.attack} | <strong>防御力</strong>: ${player.defense}<br/>
+          <strong>灵石</strong>: ${player.gold} | <strong>杀戮数</strong>: ${player.killCount}
+        `;
+        document.getElementById("invCount").textContent = player.inventory.length;
 
-      const inv = document.getElementById("inventory");
-      inv.innerHTML = "";
-      player.inventory.slice(-8).reverse().forEach(eq => {
-        const div = document.createElement("div");
-        div.className = `equipment-item grade-${eq.gradeIndex}`;
-        div.innerHTML = `${eq.name} <button style="float:right" onclick="equipItem(${eq.id})">装备</button>`;
-        div.onclick = () => equipItem(eq.id);
-        inv.appendChild(div);
-      });
+        const inv = document.getElementById("inventory");
+        inv.innerHTML = "";
+        player.inventory.slice(-8).reverse().forEach(eq => {
+          const div = document.createElement("div");
+          div.className = `equipment-item grade-${eq.gradeIndex}`;
+          div.innerHTML = `${eq.name} <button style="float:right" onclick="equipItem(${eq.id})">装备</button>`;
+          div.onclick = () => equipItem(eq.id);
+          inv.appendChild(div);
+        });
 
-      const sel = document.getElementById("dungeonSelect");
-      sel.innerHTML = "";
-      DUNGEONS.forEach((d, i) => {
-        const opt = document.createElement("option");
-        opt.value = i;
-        opt.text = d.name;
-        if (i === player.dungeon) opt.selected = true;
-        sel.appendChild(opt);
-      });
+        const sel = document.getElementById("dungeonSelect");
+        sel.innerHTML = "";
+        DUNGEONS.forEach((d, i) => {
+          const opt = document.createElement("option");
+          opt.value = i;
+          opt.text = d.name;
+          if (i === player.dungeon) opt.selected = true;
+          sel.appendChild(opt);
+        });
 
-      const d = DUNGEONS[player.dungeon];
-      document.getElementById("dungeonInfo").innerHTML = `难度：${d.dropBase}倍 | BOSS概率：${(d.bossChance*100).toFixed(1)}%`;
+        const d = DUNGEONS[player.dungeon];
+        document.getElementById("dungeonInfo").innerHTML = `难度：${d.dropBase}倍 | BOSS概率：${(d.bossChance*100).toFixed(1)}%`;
 
-      const es = document.getElementById("equipslot");
-      es.innerHTML = "";
-      for (const slot in player.equipment) {
-        const eq = player.equipment[slot];
-        const item = document.createElement("div");
-        item.style.margin = "5px 0";
-        if (eq) {
-          item.innerHTML = `${slot}：${eq.name} <button onclick="unequip('${slot}')">卸下</button>`;
-          item.className = `grade-${eq.gradeIndex}`;
-        } else {
-          item.innerHTML = `${slot}：空`;
-          item.style.opacity = 0.5;
+        const es = document.getElementById("equipslot");
+        es.innerHTML = "";
+        for (const slot in player.equipment) {
+          const eq = player.equipment[slot];
+          const item = document.createElement("div");
+          item.style.margin = "5px 0";
+          if (eq) {
+            item.innerHTML = `${slot}：${eq.name} <button onclick="unequip('${slot}')">卸下</button>`;
+            item.className = `grade-${eq.gradeIndex}`;
+          } else {
+            item.innerHTML = `${slot}：空`;
+            item.style.opacity = 0.5;
+          }
+          es.appendChild(item);
         }
-        es.appendChild(item);
-      }
 
-      document.getElementById("btnTrib").style.display = player.inTribulation ? "block" : "none";
+        document.getElementById("btnTrib").style.display = player.inTribulation ? "block" : "none";
+      } catch (e) {
+        console.error("UI更新失败", e);
+      }
     }
 
     function discardAll() {
       const count = player.inventory.length;
       player.inventory = [];
-      log(`🗑️ 无情丢弃 ${count} 件法宝！大道无情！`);
+      log(`🗑️ 无情丢弃 ${count} 件法宝！`);
       updateUI();
     }
 
     function sellAll() {
-      const minSell = parseInt(prompt("出售低于哪个品质？0=破损,1=普通...", "1")) || 1;
+      const minSell = parseInt(prompt("出售低于哪个品质？", "1")) || 1;
       const filtered = player.inventory.filter(eq => eq.gradeIndex < minSell);
       const gold = filtered.reduce((sum, eq) => sum + (eq.gradeIndex + 1) * 10, 0);
       player.gold += gold;
       player.inventory = player.inventory.filter(eq => eq.gradeIndex >= minSell);
-      log(`💰 出售 ${filtered.length} 件法宝，获得灵石 ×${gold}`);
+      log(`💰 出售 ${filtered.length} 件，获得灵石 ×${gold}`);
       updateUI();
     }
 
     function changeDungeon() {
       player.dungeon = parseInt(document.getElementById("dungeonSelect").value);
       log(`🚪 切换副本：${DUNGEONS[player.dungeon].name}`);
+    }
+
+    function toggleMusic() {
+      const btn = document.getElementById("musicBtn");
+      if (bgMusic.paused) {
+        bgMusic.play().then(() => {
+          btn.textContent = "🔇 关闭音乐";
+        }).catch(e => {
+          alert("音乐播放被浏览器阻止，请点击一次页面后再试");
+        });
+      } else {
+        bgMusic.pause();
+        btn.textContent = "🔊 开启音乐";
+      }
     }
   </script>
 </body>
